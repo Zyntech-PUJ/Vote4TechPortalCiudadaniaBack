@@ -1,0 +1,1274 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Registrador",
+      "description": "Gestión de registradores"
+    },
+    {
+      "name": "Candidato",
+      "description": "Gestión de candidatos"
+    },
+    {
+      "name": "Eleccion",
+      "description": "Gestión de elecciones y su ciclo de vida"
+    },
+    {
+      "name": "Eleccion Jurado",
+      "description": "Gestión del sorteo y listado de jurados por elección"
+    }
+  ],
+  "paths": {
+    "/registrador/{idRegistrador}": {
+      "get": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Obtener registrador por ID",
+        "operationId": "obtenerRegistradorById",
+        "parameters": [
+          {
+            "name": "idRegistrador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registrador encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Actualizar registrador por ID",
+        "operationId": "actualizarRegistrador",
+        "parameters": [
+          {
+            "name": "idRegistrador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRegistradorDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Registrador actualizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Eliminar registrador por ID",
+        "operationId": "eliminarRegistrador",
+        "parameters": [
+          {
+            "name": "idRegistrador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Registrador eliminado"
+          },
+          "404": {
+            "description": "Registrador no encontrado"
+          }
+        }
+      }
+    },
+    "/eleccion/{idEleccion}": {
+      "get": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Obtener elección por ID",
+        "operationId": "obtenerEleccionById",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Elección encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Actualizar elección por ID",
+        "description": "Solo permitido en estado CONFIGURACION",
+        "operationId": "actualizarEleccion",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEleccionDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Elección actualizada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección o registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La elección no está en estado CONFIGURACION",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Eliminar elección por ID",
+        "operationId": "eliminarEleccion",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Elección eliminada"
+          },
+          "404": {
+            "description": "Elección no encontrada"
+          }
+        }
+      }
+    },
+    "/candidato/{idCandidato}": {
+      "get": {
+        "tags": [
+          "Candidato"
+        ],
+        "summary": "Obtener candidato por ID",
+        "operationId": "obtenerCandidatoById",
+        "parameters": [
+          {
+            "name": "idCandidato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Candidato encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Candidato no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Candidato"
+        ],
+        "summary": "Actualizar candidato por ID",
+        "operationId": "actualizarCandidato",
+        "parameters": [
+          {
+            "name": "idCandidato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCandidatoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Candidato actualizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Candidato o registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Candidato"
+        ],
+        "summary": "Eliminar candidato por ID",
+        "operationId": "eliminarCandidato",
+        "parameters": [
+          {
+            "name": "idCandidato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Candidato eliminado"
+          },
+          "404": {
+            "description": "Candidato no encontrado"
+          }
+        }
+      }
+    },
+    "/registrador/login": {
+      "post": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Login de registrador",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRegistradorDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registrador/add": {
+      "post": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Crear un nuevo registrador",
+        "operationId": "crearRegistrador",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRegistradorDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Registrador creado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion/add": {
+      "post": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Crear una nueva elección",
+        "operationId": "crearEleccion",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEleccionDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Elección creada en estado CONFIGURACION",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion-jurado/eleccion/{idEleccion}": {
+      "get": {
+        "tags": [
+          "Eleccion Jurado"
+        ],
+        "summary": "Listar jurados de una elección",
+        "operationId": "obtenerJuradosPorEleccion",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jurados consultados correctamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Eleccion Jurado"
+        ],
+        "summary": "Crear jurado manualmente para una elección",
+        "operationId": "crearJurado",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEleccionJuradoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Jurado creado correctamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección o ciudadano no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El ciudadano ya fue asignado como jurado en esa elección",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion-jurado/eleccion/{idEleccion}/sortear": {
+      "post": {
+        "tags": [
+          "Eleccion Jurado"
+        ],
+        "summary": "Generar sorteo de jurados para una elección",
+        "operationId": "generarSorteo",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sorteo generado correctamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La elección ya tenía jurados sorteados o no hay ciudadanos disponibles",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/candidato/add": {
+      "post": {
+        "tags": [
+          "Candidato"
+        ],
+        "summary": "Crear un nuevo candidato",
+        "operationId": "crearCandidato",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCandidatoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Candidato creado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Registrador no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion/{idEleccion}/lanzar": {
+      "patch": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Lanzar elección",
+        "description": "Cambia el estado de CONFIGURACION a LANZADA",
+        "operationId": "lanzarEleccion",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Elección lanzada exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La elección no está en estado CONFIGURACION",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion/{idEleccion}/finalizar": {
+      "patch": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Finalizar elección",
+        "description": "Cambia el estado de EN_CURSO a FINALIZADA",
+        "operationId": "finalizarEleccion",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Elección finalizada exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La elección no está en estado EN_CURSO",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registrador/registradores": {
+      "get": {
+        "tags": [
+          "Registrador"
+        ],
+        "summary": "Obtener todos los registradores",
+        "operationId": "obtenerRegistradores",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseRegistradorDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion/elecciones": {
+      "get": {
+        "tags": [
+          "Eleccion"
+        ],
+        "summary": "Obtener todas las elecciones",
+        "operationId": "obtenerElecciones",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion-jurado": {
+      "get": {
+        "tags": [
+          "Eleccion Jurado"
+        ],
+        "summary": "Obtener todas las asignaciones de jurados",
+        "operationId": "obtenerAsignaciones",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseEleccionJuradoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eleccion-jurado/eleccion/{idEleccion}/dashboard": {
+      "get": {
+        "tags": [
+          "Eleccion Jurado"
+        ],
+        "summary": "Obtener estadísticas de jurados para el dashboard de una elección",
+        "operationId": "getDashboard",
+        "parameters": [
+          {
+            "name": "idEleccion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard consultado correctamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardEleccionDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elección no encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardEleccionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/candidato/candidatos": {
+      "get": {
+        "tags": [
+          "Candidato"
+        ],
+        "summary": "Obtener todos los candidatos",
+        "operationId": "obtenerCandidatos",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseCandidatoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateRegistradorDTO": {
+        "type": "object",
+        "properties": {
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "usuario": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseRegistradorDTO": {
+        "type": "object",
+        "properties": {
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "usuario": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateEleccionDTO": {
+        "type": "object",
+        "properties": {
+          "idEleccion": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFinalizacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "listaAbierta": {
+            "type": "boolean"
+          },
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResponseEleccionDTO": {
+        "type": "object",
+        "properties": {
+          "idEleccion": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFinalizacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "listaAbierta": {
+            "type": "boolean"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "CONFIGURACION",
+              "LANZADA",
+              "EN_CURSO",
+              "FINALIZADA"
+            ]
+          },
+          "registrador": {
+            "$ref": "#/components/schemas/ResponseRegistradorDTO"
+          }
+        }
+      },
+      "UpdateCandidatoDTO": {
+        "type": "object",
+        "properties": {
+          "idCandidato": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "fotoUrl": {
+            "type": "string"
+          },
+          "partidoLogoUrl": {
+            "type": "string"
+          },
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResponseCandidatoDTO": {
+        "type": "object",
+        "properties": {
+          "idCandidato": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "fotoUrl": {
+            "type": "string"
+          },
+          "partidoLogoUrl": {
+            "type": "string"
+          },
+          "registrador": {
+            "$ref": "#/components/schemas/ResponseRegistradorDTO"
+          }
+        }
+      },
+      "LoginRegistradorDTO": {
+        "type": "object",
+        "properties": {
+          "usuario": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateRegistradorDTO": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string"
+          },
+          "usuario": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateEleccionDTO": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFinalizacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "listaAbierta": {
+            "type": "boolean"
+          },
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreateEleccionJuradoDTO": {
+        "type": "object",
+        "properties": {
+          "tipoJurado": {
+            "type": "string"
+          },
+          "cedulaCiudadano": {
+            "type": "string"
+          },
+          "numeroMesa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fechaCapacitacion": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResponseEleccionJuradoDTO": {
+        "type": "object",
+        "properties": {
+          "idAsignacionJurado": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombreEleccion": {
+            "type": "string"
+          },
+          "tipoJurado": {
+            "type": "string"
+          },
+          "numeroMesa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fechaCapacitacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "nombreCiudadano": {
+            "type": "string"
+          },
+          "generoCiudadano": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCandidatoDTO": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "fotoUrl": {
+            "type": "string"
+          },
+          "partidoLogoUrl": {
+            "type": "string"
+          },
+          "idRegistrador": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "DashboardEleccionDTO": {
+        "type": "object",
+        "properties": {
+          "idEleccion": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombreEleccion": {
+            "type": "string"
+          },
+          "totalJurados": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "capacitados": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pendientes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "noPresentados": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}
