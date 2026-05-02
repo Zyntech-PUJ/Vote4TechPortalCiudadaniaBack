@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vote4tech.portalciudadania.dtos.dashboard.DashboardEleccionDTO;
 import com.vote4tech.portalciudadania.dtos.eleccionjurado.ResponseEleccionJuradoDTO;
+import com.vote4tech.portalciudadania.exceptions.BadRequestException;
+import com.vote4tech.portalciudadania.exceptions.ResourceNotFoundException;
 import com.vote4tech.portalciudadania.services.eleccionjurado.IServiceEleccionJurado;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -26,13 +28,28 @@ public class ControllerEleccionJurado {
   @Operation(summary = "Consultar una asignación de jurado por cédula")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Jurado consultado correctamente"),
-      @ApiResponse(responseCode = "404", description = "No existe jurado asignado para la cédula")
+      @ApiResponse(responseCode = "400", description = "Cédula inválida")
   })
   @GetMapping("/cedula/{cedula}")
-  public ResponseEntity<ResponseEleccionJuradoDTO> obtenerJuradoPorCedula(@PathVariable String cedula) {
-    return ResponseEntity.ok(serviceEleccionJurado.findByCedula(cedula));
+  public ResponseEntity<ConsultaJuradoResponse> obtenerJuradoPorCedula(@PathVariable String cedula) {
+    validarCedula(cedula);
+
+    try {
+      ResponseEleccionJuradoDTO jurado = serviceEleccionJurado.findByCedula(cedula);
+      return ResponseEntity.ok(new ConsultaJuradoResponse(true, "El ciudadano fue designado como jurado.", jurado));
+    } catch (ResourceNotFoundException ex) {
+      return ResponseEntity.ok(
+          new ConsultaJuradoResponse(false, "No existe jurado asignado para la cédula consultada.", null));
+    }
   }
 
+  private void validarCedula(String cedula) {
+    if (cedula == null || cedula.trim().isEmpty()) {
+      throw new BadRequestException("Debe ingresar una cédula válida.");
+    }
+  }
 
+  public static record ConsultaJuradoResponse(boolean found, String mensaje, ResponseEleccionJuradoDTO jurado) {
+  }
 
 }

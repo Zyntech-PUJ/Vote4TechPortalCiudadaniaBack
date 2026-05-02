@@ -1,12 +1,22 @@
 package com.vote4tech.portalciudadania.config;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import com.vote4tech.portalciudadania.entities.Candidato;
+import com.vote4tech.portalciudadania.entities.Eleccion;
+import com.vote4tech.portalciudadania.entities.Registrador;
+import com.vote4tech.portalciudadania.enums.EstadoEleccion;
+import com.vote4tech.portalciudadania.repositories.RepositoryCandidato;
+import com.vote4tech.portalciudadania.repositories.RepositoryEleccion;
+import com.vote4tech.portalciudadania.repositories.RepositoryRegistrador;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -14,9 +24,15 @@ public class DataInitializer implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private RepositoryRegistrador repositoryRegistrador;
 
-    @Value("${app.seed-data.enabled:false}")
+    @Autowired
+    private RepositoryEleccion repositoryEleccion;
+
+    @Autowired
+    private RepositoryCandidato repositoryCandidato;
+
+    @Value("${app.seed-data.enabled:true}")
     private boolean seedDataEnabled;
 
     @Override
@@ -26,83 +42,91 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        // Verificar si ya hay datos en la tabla eleccion
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM eleccion", Integer.class);
-        if (count != null && count > 0) {
-            LOGGER.info("Datos de prueba ya existen, omitiendo inicializacion.");
-            return;
-        }
-
         LOGGER.info("Inicializando datos de prueba...");
 
-        // Ejecutar el script de datos de prueba
-        String sql = """
-            -- Limpiar datos anteriores para evitar errores de duplicados si el script falló a medias
-            DELETE FROM jurado;
-            DELETE FROM censo_electoral_snapshot;
-            DELETE FROM mesa_votacion;
-            DELETE FROM puesto_votacion;
-            DELETE FROM centro_votacion;
-            DELETE FROM ciudadano;
-            DELETE FROM eleccion;
-            DELETE FROM municipio;
-            DELETE FROM departamento;
+        Registrador registrador = repositoryRegistrador.findByUsuario("seed_admin");
+        if (registrador == null) {
+            registrador = Registrador.builder()
+                    .nombre("Registrador Seed")
+                    .usuario("seed_admin")
+                    .password("seed123")
+                    .build();
+            registrador = repositoryRegistrador.save(registrador);
+            LOGGER.info("Registrador de prueba creado: {}", registrador.getUsuario());
+        }
 
-            -- Insertar datos de la elección
-            INSERT INTO eleccion (id, nombre) VALUES
-            ('eeeeeeee-0000-0000-0000-000000000001', 'Elecciones Congreso 2026');
+        if (repositoryEleccion.count() == 0) {
+            LocalDateTime now = LocalDateTime.now();
+            List<Eleccion> elecciones = List.of(
+                    Eleccion.builder()
+                            .nombre("Elecciones Presidenciales 2026")
+                            .fechaInicio(now.plusDays(10))
+                            .fechaFinalizacion(now.plusDays(11))
+                            .fechaCreacion(now)
+                            .tipo("PRESIDENCIAL")
+                            .listaAbierta(false)
+                            .estado(EstadoEleccion.CONFIGURACION)
+                            .registrador(registrador)
+                            .build(),
+                    Eleccion.builder()
+                            .nombre("Elecciones Legislativas 2026")
+                            .fechaInicio(now.plusDays(20))
+                            .fechaFinalizacion(now.plusDays(21))
+                            .fechaCreacion(now)
+                            .tipo("LEGISLATIVA")
+                            .listaAbierta(true)
+                            .estado(EstadoEleccion.LANZADA)
+                            .registrador(registrador)
+                            .build(),
+                    Eleccion.builder()
+                            .nombre("Consulta Nacional 2026")
+                            .fechaInicio(now.plusDays(30))
+                            .fechaFinalizacion(now.plusDays(31))
+                            .fechaCreacion(now)
+                            .tipo("CONSULTA")
+                            .listaAbierta(false)
+                            .estado(EstadoEleccion.EN_CURSO)
+                            .registrador(registrador)
+                            .build());
 
-            -- Insertar departamento y municipio
-            INSERT INTO departamento (id, nombre) VALUES
-            (1, 'Cundinamarca');
+            repositoryEleccion.saveAll(elecciones);
+            LOGGER.info("Elecciones de prueba creadas: {}", elecciones.size());
+        }
 
-            INSERT INTO municipio (id, nombre, departamento_id) VALUES
-            (11001, 'Bogota', 1);
+        if (repositoryCandidato.count() == 0) {
+            List<Candidato> candidatos = List.of(
+                    Candidato.builder()
+                            .nombre("Laura Martinez")
+                            .numero("01")
+                            .fotoUrl("https://example.com/candidatos/laura-martinez.jpg")
+                            .partidoLogoUrl("https://example.com/partidos/alianza-verde.png")
+                            .registrador(registrador)
+                            .build(),
+                    Candidato.builder()
+                            .nombre("Carlos Rojas")
+                            .numero("02")
+                            .fotoUrl("https://example.com/candidatos/carlos-rojas.jpg")
+                            .partidoLogoUrl("https://example.com/partidos/centro-democratico.png")
+                            .registrador(registrador)
+                            .build(),
+                    Candidato.builder()
+                            .nombre("Ana Pineda")
+                            .numero("03")
+                            .fotoUrl("https://example.com/candidatos/ana-pineda.jpg")
+                            .partidoLogoUrl("https://example.com/partidos/pacto-historico.png")
+                            .registrador(registrador)
+                            .build(),
+                    Candidato.builder()
+                            .nombre("Miguel Herrera")
+                            .numero("04")
+                            .fotoUrl("https://example.com/candidatos/miguel-herrera.jpg")
+                            .partidoLogoUrl("https://example.com/partidos/liberal.png")
+                            .registrador(registrador)
+                            .build());
 
-            -- Insertar centro de votación
-            INSERT INTO centro_votacion (id, nombre, direccion, municipio_id) VALUES
-            ('cccccccc-0000-0000-0000-000000000001', 'Colegio San Bartolome', 'Cra 7 # 9-96', 11001);
-
-            -- Insertar puesto de votación
-            INSERT INTO puesto_votacion (id, codigo, capacidad, centro_id) VALUES
-            ('dddddddd-0000-0000-0000-000000000001', 'P-01', 5000, 'cccccccc-0000-0000-0000-000000000001');
-
-            -- Insertar mesa de votación
-            INSERT INTO mesa_votacion (id, numero_mesa, puesto_id) VALUES
-            ('bbbbbbbb-0000-0000-0000-000000000001', 1, 'dddddddd-0000-0000-0000-000000000001');
-
-            -- Insertar ciudadanos
-            INSERT INTO ciudadano (
-                id, tipo_doc, numero_doc, nombres, apellidos, fecha_nacimiento,
-                municipio_residencia_id, discapacidad_certificada, comunidad_indigena,
-                poblacion_indigena_nombre, derechos_politicos_estado, causal_inhabilitacion,
-                email, password_hash, rol, activo, created_at, updated_at
-            ) VALUES
-            ('11111111-0000-0000-0000-000000000001', 'CC', '1001001001', 'Juan', 'Perez', '1990-05-15',
-             11001, false, false, null, 'ACTIVO', null,
-             'juan.perez@example.com', 'hash_falso_123', 'CIUDADANO', true, NOW(), NOW()),
-
-            ('22222222-0000-0000-0000-000000000002', 'CC', '2002002002', 'Maria', 'Gomez', '1985-08-20',
-             11001, true, false, null, 'ACTIVO', null,
-             'maria.gomez@example.com', 'hash_falso_123', 'CIUDADANO', true, NOW(), NOW()),
-
-            ('33333333-0000-0000-0000-000000000003', 'CC', '4004004004', 'Ana', 'Martinez', '1975-03-25',
-             11001, false, true, 'Embera', 'ACTIVO', null,
-             'ana.martinez@example.com', 'hash_falso_123', 'CIUDADANO', true, NOW(), NOW());
-
-            -- Insertar censo electoral snapshot
-            INSERT INTO censo_electoral_snapshot (id, eleccion_id, ciudadano_id, mesa_id, puesto_id, centro_id, municipio_id, departamento_id) VALUES
-            ('aaaaaaaa-0000-0000-0000-000000000001', 'eeeeeeee-0000-0000-0000-000000000001', '11111111-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000001', 'dddddddd-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001', 11001, 1),
-            ('aaaaaaaa-0000-0000-0000-000000000002', 'eeeeeeee-0000-0000-0000-000000000001', '22222222-0000-0000-0000-000000000002', 'bbbbbbbb-0000-0000-0000-000000000001', 'dddddddd-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001', 11001, 1),
-            ('aaaaaaaa-0000-0000-0000-000000000003', 'eeeeeeee-0000-0000-0000-000000000001', '33333333-0000-0000-0000-000000000003', 'bbbbbbbb-0000-0000-0000-000000000001', 'dddddddd-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001', 11001, 1);
-
-            -- Insertar jurado
-            INSERT INTO jurado (id, ciudadano_id, eleccion_id, mesa_id, puesto_id, centro_id, municipio_id, departamento_id) VALUES
-            ('99999999-0000-0000-0000-000000000001', '11111111-0000-0000-0000-000000000001', 'eeeeeeee-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000001', 'dddddddd-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001', 11001, 1);
-            """;
-
-        // Ejecutar el SQL
-        jdbcTemplate.execute(sql);
+            repositoryCandidato.saveAll(candidatos);
+            LOGGER.info("Candidatos de prueba creados: {}", candidatos.size());
+        }
 
         LOGGER.info("Datos de prueba inicializados correctamente.");
     }
