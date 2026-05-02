@@ -1,6 +1,9 @@
 package com.vote4tech.portalciudadania.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -8,19 +11,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Value("${app.seed-data.enabled:false}")
+    private boolean seedDataEnabled;
+
     @Override
     public void run(String... args) throws Exception {
-        // Verificar si ya hay datos en la tabla eleccion
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM eleccion", Integer.class);
-        if (count != null && count > 0) {
-            System.out.println("Datos de prueba ya existen, omitiendo inicialización.");
+        if (!seedDataEnabled) {
+            LOGGER.info("Inicializacion de datos de prueba deshabilitada (app.seed-data.enabled=false).");
             return;
         }
 
-        System.out.println("Inicializando datos de prueba...");
+        // Verificar si ya hay datos en la tabla eleccion
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM eleccion", Integer.class);
+        if (count != null && count > 0) {
+            LOGGER.info("Datos de prueba ya existen, omitiendo inicializacion.");
+            return;
+        }
+
+        LOGGER.info("Inicializando datos de prueba...");
 
         // Ejecutar el script de datos de prueba
         String sql = """
@@ -91,6 +104,6 @@ public class DataInitializer implements CommandLineRunner {
         // Ejecutar el SQL
         jdbcTemplate.execute(sql);
 
-        System.out.println("Datos de prueba inicializados correctamente.");
+        LOGGER.info("Datos de prueba inicializados correctamente.");
     }
 }
