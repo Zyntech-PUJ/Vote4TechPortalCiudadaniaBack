@@ -9,24 +9,19 @@
 #
 # IMPORTANTE: antes de levantar, editar CORS_ALLOWED_ORIGINS con el URL
 # real de Cloudflare una vez obtenido del tunnel de ciudadania-front.
-# PREREQUISITO: PostgreSQL debe estar corriendo en 10.43.101.13 y la base
-#               de datos bd_publica debe existir (ejecutar el ETL primero).
 
 services:
   ciudadania-back:
     build:
-      context: ..            # raiz del repo Vote4TechPortalCiudadaniaBack
+      context: ..
       dockerfile: Dockerfile
     image: vote4tech-ciudadania-back:latest
     container_name: vote4tech-ciudadania-back
     ports:
       - "8084:8080"
     environment:
-      # Base de datos PostgreSQL publica (VM de BDs: 10.43.101.13)
-      DB_URL: jdbc:postgresql://10.43.101.13:5432/bd_publica
+      DB_URL: jdbc:postgresql://10.43.101.13:5432/bd_nacional_vote4tech
       DB_USER: admin_db_nacional
       DB_PASSWORD: "12345"
-      # CORS: CiudadaniaFront corre en el puerto 4202 del mismo VM de frontends
-      # Reemplazar CLOUDFLARE_URL con el URL real obtenido del tunel
       CORS_ALLOWED_ORIGINS: "http://10.43.97.237:4202,https://CLOUDFLARE_URL"
     restart: unless-stopped

@@ -32,7 +32,7 @@ public class ServiceCandidato {
     }
 
     public List<ResponseCandidatoDTO> obtenerPorEleccion(Long idEleccion) {
-        return repositorioCandidato.findByEleccion_IdEleccion(idEleccion)
+        return repositorioCandidato.findByLista_Eleccion_IdEleccion(idEleccion)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -43,9 +43,10 @@ public class ServiceCandidato {
                 .idCandidato(c.getIdCandidato())
                 .nombre(c.getNombre())
                 .numero(c.getNumero())
-                .fotoUrl(c.getFotoUrl())
-                .partidoLogoUrl(c.getPartidoLogoUrl())
-                .idEleccion(c.getEleccion() != null ? c.getEleccion().getIdEleccion() : null)
+                .activo(c.getActivo())
+                .nombrePartido(c.getPartido() != null ? c.getPartido().getNombre() : null)
+                .idEleccion(c.getLista() != null && c.getLista().getEleccion() != null
+                        ? c.getLista().getEleccion().getIdEleccion() : null)
                 .build();
     }
 }

@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "candidato")
+@Table(name = "CANDIDATO")
 public class Candidato {
 
     @Id
@@ -33,17 +33,18 @@ public class Candidato {
     @Column(name = "numero")
     private String numero;
 
-    @Column(name = "foto_url")
-    private String fotoUrl;
-
-    @Column(name = "partido_logo_url")
-    private String partidoLogoUrl;
+    @Column(name = "activo")
+    private Boolean activo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_registrador", referencedColumnName = "id_registrador")
     private Registrador registrador;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_eleccion", referencedColumnName = "id_eleccion")
-    private Eleccion eleccion;
+    @JoinColumn(name = "id_lista", referencedColumnName = "id_lista")
+    private Lista lista;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_partido", referencedColumnName = "id_partido")
+    private Partido partido;
 }

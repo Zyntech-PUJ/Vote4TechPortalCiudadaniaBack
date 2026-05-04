@@ -10,5 +10,5 @@ import com.vote4tech.portalciudadania.entities.Candidato;
 @Repository
 public interface RepositorioCandidato extends JpaRepository<Candidato, Long> {
 
-    List<Candidato> findByEleccion_IdEleccion(Long idEleccion);
+    List<Candidato> findByLista_Eleccion_IdEleccion(Long idEleccion);
 }
