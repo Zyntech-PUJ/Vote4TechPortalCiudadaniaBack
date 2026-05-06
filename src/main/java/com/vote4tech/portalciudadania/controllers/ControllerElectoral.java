@@ -25,15 +25,22 @@ public class ControllerElectoral {
 
   @Operation(summary = "Consulta si una cédula está designada como jurado")
   @GetMapping("/consulta-jurado")
-  public ResponseEntity<ConsultaEstadoResponse> consultarJurado(@RequestParam String cedula) {
+  public ResponseEntity<ConsultaJuradoDetalleResponse> consultarJurado(@RequestParam String cedula) {
     validarCedula(cedula);
 
     try {
-      serviceEleccionJurado.findByCedula(cedula);
-      return ResponseEntity.ok(new ConsultaEstadoResponse(true, "El ciudadano fue designado como jurado de votación."));
+      ResponseEleccionJuradoDTO jurado = serviceEleccionJurado.findByCedula(cedula);
+      String[] ubicacion = getMockUbicacion(cedula);
+      String direccion = ubicacion[0];
+      String municipio = ubicacion[1];
+      String puesto = jurado.getNombreEleccion();
+      String mesa = String.valueOf(jurado.getNumeroMesa());
+      
+      String mensaje = "El ciudadano fue designado como jurado de votación.";
+      return ResponseEntity.ok(new ConsultaJuradoDetalleResponse(true, mensaje, puesto, direccion, municipio, mesa));
     } catch (ResourceNotFoundException ex) {
       return ResponseEntity.ok(
-          new ConsultaEstadoResponse(false, "No se encontró designación de jurado para el documento ingresado."));
+          new ConsultaJuradoDetalleResponse(false, "Usted no fue designado como jurado de votacion para estas elecciones.", null, null, null, null));
     }
   }
 
@@ -65,14 +72,33 @@ public class ControllerElectoral {
       ResponseEleccionJuradoDTO jurado = serviceEleccionJurado.findByCedula(cedula);
 
       String mesa = String.valueOf(jurado.getNumeroMesa());
-      String puesto = "Puesto Electoral " + jurado.getNombreEleccion();
-      String direccion = null;
-      String municipio = null;
+      String puesto = jurado.getNombreEleccion();
+      
+      String[] ubicacion = getMockUbicacion(cedula);
+      String direccion = ubicacion[0];
+      String municipio = ubicacion[1];
 
       return ResponseEntity.ok(new LugarVotacionResponse(true, puesto, direccion, municipio, mesa));
     } catch (ResourceNotFoundException ex) {
       return ResponseEntity.ok(new LugarVotacionResponse(false, null, null, null, null));
     }
+  }
+
+  private String[] getMockUbicacion(String cedula) {
+      char lastDigit = cedula.charAt(cedula.length() - 1);
+      switch(lastDigit) {
+          case '1':
+          case '2':
+              return new String[]{"Cra 7 # 9-96", "Bogotá, D.C."};
+          case '3':
+          case '4':
+              return new String[]{"Calle 5 # 38-12", "Medellín, Antioquia"};
+          case '5':
+          case '6':
+              return new String[]{"Cra 44 # 32-15", "Cali, Valle del Cauca"};
+          default:
+              return new String[]{"Calle 10 # 5-20", "Bucaramanga, Santander"};
+      }
   }
 
   private void validarCedula(String cedula) {
@@ -82,6 +108,9 @@ public class ControllerElectoral {
   }
 
   public static record ConsultaEstadoResponse(boolean found, String mensaje) {
+  }
+
+  public static record ConsultaJuradoDetalleResponse(boolean found, String mensaje, String puesto, String direccion, String municipio, String mesa) {
   }
 
   public static record LugarVotacionResponse(boolean found, String puesto, String direccion, String municipio,
